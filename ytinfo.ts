@@ -71,12 +71,8 @@ export async function newWatch() {
       const thumbnail = data.videoThumbnails[0].url; 
       //await editor.insertAtCursor(`![thumbnail|${VIDEO_THUMBNAIL_SIZE}](${thumbnail})\n`);
       const titleThumb = expandTemplate(VIDEO_THUMBNAIL_WRITES, { thumbnail, thumbnail_size });
-      if (title_len > 36 && title_len < 64) {
+      if (title_len > 46 && title_len < 64) {
         console.log(`$title len: ${title_len} fixing with $formatting_spaces`);
-        // let formatting_spaces = "";
-        // for (let i = 0; i < 29; i++) {
-        //   formatting_spaces += " ";
-        // }
         const formatting_spaces = " ".repeat(29);
         console.log(formatting_spaces);
         console.log(`$formatting_spaces: ${formatting_spaces.length}`);
