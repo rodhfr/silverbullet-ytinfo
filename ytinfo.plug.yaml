@@ -1,0 +1,9 @@
+name: ytinfo
+version: 0.1
+requiredPermissions:
+  - fetch
+functions:
+  NewWatch:
+    path: ytinfo.ts:newWatch
+    command:
+      name: "Youtube: New Watch"
