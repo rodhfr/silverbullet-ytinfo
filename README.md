@@ -40,7 +40,7 @@ limit 30
 ```
 
 ### Using objects query in template pages
-`${"$"}` prevents variables to expand in the template. With this you can dinamically add your watchlist to your daily page for example.
+`${"$"}` prevents variables to expand in the template. With this you can dinamically add your watchlist to your daily page template for example.
 ```
 * # WATCHLIST 🎬
 ${"$"}{template.each(query[[
@@ -83,3 +83,4 @@ Copy `ytinfo.plug.js` to silverbullet/_plugs/ and wait for it to autoupdate, it 
 
 ## Functions
 * `Youtube: New Watch`: requests video information from invidious server using youtube video id then write hyperlinked video title and optionally thumbnail with #watch tag.
+## [Roadmap](https://github.com/users/rodhfr/projects/1/views/1)
