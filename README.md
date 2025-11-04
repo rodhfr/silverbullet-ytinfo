@@ -1,4 +1,5 @@
 # SilverBullet YTinfo
+![image](https://raw.githubusercontent.com/rodhfr/silverbullet-ytinfo/refs/heads/main/resources/scrsht.png)
 Get and write metadata like title, author and description from YouTube videos using Invidious API.
 
 ## Installation
