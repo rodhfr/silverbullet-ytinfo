@@ -1,9 +1,4 @@
-import { 
-  sleep 
-} from "./utils.ts";
-import { 
-  editor 
-} from "@silverbulletmd/silverbullet/syscalls";
+import { system } from "@silverbulletmd/silverbullet/syscalls";
 import { 
   addToWatchlist,
   delWholeWatchlist
@@ -11,12 +6,10 @@ import {
 
 export async function newWatch() {
   await addToWatchlist();
-  await sleep(3);
-  await editor.reloadPage();
+  system.invokeCommand("System: Reload");
 }
 
 export async function deleteWatch() {
   await delWholeWatchlist();
-  await sleep(3);
-  await editor.reloadPage();
+  system.invokeCommand("System: Reload");
 }

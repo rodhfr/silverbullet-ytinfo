@@ -1,5 +1,6 @@
 import {
-  INVIDIOUS_API_URL,
+  // INVIDIOUS_API_URL,
+  INVIDIOUS_API_URLS
 } from "./config.ts";
 
 export function getYtID(url: string): string | null {
@@ -13,6 +14,10 @@ export function getYtID(url: string): string | null {
   if (!domain.includes("youtube.com") && !domain.includes("youtu.be")) {
     return null;
   }
+
+  // URL: invidious instance /v/ID
+  const invMatch = url.match(/[?&]v=([\w-]{11})/);
+  if (invMatch) return invMatch[1];
 
   // URL: youtu.be/ID
   const shortMatch = url.match(/youtu\.be\/([\w-]{11})/);
@@ -28,30 +33,50 @@ export function getYtID(url: string): string | null {
   return null;
 }
 
-export async function getVideoInfo(url: string) {
+interface Thumbnail {
+  url: string;
+  quality: string;
+  width: number;
+  height: number;
+}
+
+interface VideoInfo {
+  title: string;
+  author: string;
+  description: string;
+  videoThumbnails: Thumbnail[];
+  [key: string]: any;
+}
+
+export async function getVideoInfo(url: string): Promise<[VideoInfo, string]> {
   console.log(
     "exec async fn: getVideoInfo(): description: Requests info using invidious api.",
   );
   const ytID = getYtID(url);
-  let request_url;
   // check if url has /
-  if (INVIDIOUS_API_URL.endsWith("/")) {
-    request_url = INVIDIOUS_API_URL + ytID;
-  } else {
-    request_url = INVIDIOUS_API_URL + "/" + ytID;
-  }
-  try {
-    const response = await fetch(request_url);
-    if (!response.ok) {
-      throw new Error("fn: getVideoInfo(): Network response error.");
+  for (const apiUrl of INVIDIOUS_API_URLS) {
+    const request_url = apiUrl.endsWith("/") ? apiUrl + ytID : apiUrl + "/" + ytID;
+    console.log(`fn: getVideoInfo(): Fetching from Invidious API URL: ${request_url}`);
+    try {
+      const response = await fetch(request_url);
+      if (!response.ok) {
+        throw new Error("Network response error.");
+      }
+      const VideoInfo = await response.json();
+      if (!VideoInfo || !VideoInfo.title) {
+        throw new Error("Invalid data received from Invidious API.");
+      }
+      return [VideoInfo, apiUrl];
+    } catch (error) {
+      console.error(`fn: getVideoInfo(): Error fetching from ${apiUrl}.`, error);
+      // try next url
+      continue;
+      }
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("fn: getVideoInfo(): Error fetching data.", error);
-    return null;
+    throw new Error("fn: getVideoInfo(): All Invidious API URLs failed.");
   }
-}
+
+
 
 export function expandTemplate(template, vars) {
   console.log(

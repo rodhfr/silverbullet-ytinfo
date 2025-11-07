@@ -5,7 +5,8 @@
 // You can change to your preferences or leave it default.
 // Default: "https://inv.perditum.com/api/v1/videos/"
 // List of public instances: https://api.invidious.io/
-export const INVIDIOUS_API_URL = "https://inv.perditum.com/api/v1/videos/"; 
+//export const INVIDIOUS_API_URL = "https://inv.perditum.com/api/v1/videos/"; 
+export const INVIDIOUS_API_URLS = ["https://someinstance/api/v1/videos/", "https://inv.perditum.com/api/v1/videos/"]; 
 
 export const WATCHLIST_ENABLE = true;
 export const WATCHLIST_PATH = "WATCHLIST";
@@ -27,11 +28,6 @@ export const VIDEO_THUMBNAIL_SIZE = "300";
 // Low for limited bandwidth e.g. mobile data. On low the thumbnail may appear pixelated and with black borders.
 export const VIDEO_THUMBNAIL_QUALITY = "default" 
 
-// Enable/Disable truncation fix with formatting dots. 
-// It applies only if title + author length is between 48 and 84 or 112 and 150 characters. This includes VIDEO_TITLE_CHAR_SEPARATOR.
-// There's a table issue in silverbullet where images appear weirdly in the object query if the text length is within that range.
-// Default: true
-// export const VIDEO_TITLE_TRUNCATION_FIX = false; 
 
 // Number of characters before forcing truncation also known as title elipsis "...".
 // Set to 0 to disable automatic truncation.

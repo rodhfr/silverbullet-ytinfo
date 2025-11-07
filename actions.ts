@@ -1,6 +1,7 @@
 import { 
     editor, 
-    space 
+    space, 
+    system
 } from "@silverbulletmd/silverbullet/syscalls";
 import {
   VIDEO_THUMBNAIL,
@@ -27,8 +28,8 @@ import {
 export async function addToWatchlist() {
   // This function adds a new youtube video to the note
 
-  const url = await editor.prompt("Enter YouTube URL:", "");
-  if (!url) {
+  const ytUrl = await editor.prompt("Enter YouTube URL:", "");
+  if (!ytUrl) {
     console.error("fn newWatch(): invalid URL provided, aborting.");
     editor.flashNotification("Invalid URL provided.");
     return;
@@ -36,35 +37,31 @@ export async function addToWatchlist() {
 
   editor.flashNotification(`Adding YouTube video...`);
 
-  const data = await getVideoInfo(url);
+  const [VideoInfo, apiUrl] = await getVideoInfo(ytUrl);
 
-  if (!data) {
+  if (!VideoInfo) {
     console.error("fn newWatch(): No data received from getVideoInfo().");
     editor.flashNotification("Failed to fetch video info.");
     return;
   }
 
-  // Destructuring data from request
-  const {title: raw_title, author, description} = data;
-
   // Sanitize for markdown
-  let title = raw_title.replace(/#/g, "\\#"); 
+  let title = VideoInfo.title.replace(/#/g, "\\#"); 
+  const author = VideoInfo.author.replace(/#/g, "\\#");
+  const description = VideoInfo.description.replace(/#/g, "\\#");
 
-  // This checks and applies elipsis to title if it exceeds limit
+  // This checks and applies elipsis to title if it exceeds limit // disabled by $VIDEO_TITLE_ELIPSIS_LIMIT to 0
   const elipsis_limit = parseInt(VIDEO_TITLE_ELIPSIS_LIMIT);
   title = elipsisTitle(title, elipsis_limit)
 
-  const char_separator = VIDEO_TITLE_CHAR_SEPARATOR
-  const tag = VIDEO_TITLE_TAG;
-
   // let adjusted_title = title;
   const titleText = expandTemplate(VIDEO_TITLE_WRITES, {
-    title,
-    url,
-    author,
-    description,
-    char_separator,
-    tag
+    title: title,
+    url: ytUrl,
+    author: author,
+    description: description,
+    char_separator: VIDEO_TITLE_CHAR_SEPARATOR,
+    tag: VIDEO_TITLE_TAG,
   });
 
   // $VIDEO_TITLE_TRUNCATION_FIX: Workaround image appearing weird in tables
@@ -91,17 +88,33 @@ export async function addToWatchlist() {
   console.log(`fn newWatch(): Writing video thumbnail...`);
 
   // $VIDEO_THUMBNAIL_QUALITY mapping
-  const thumbnailIndex = {
-  default: 4,
-  high: 1,
-  low: 5,
-  }[VIDEO_THUMBNAIL_QUALITY] ?? 4;
+  const thumbQualityMapping = {
+    "high": "maxresdefault",
+    "default": "medium",
+    "low": "default",
+  };
 
-  const thumbnail = data.videoThumbnails[thumbnailIndex].url;
+  const thumbQuality = thumbQualityMapping[VIDEO_THUMBNAIL_QUALITY] || "medium";
+  console.log(`fn newWatch(): Using thumbnail quality: ${thumbQuality} from Invidious API: ${apiUrl}`);
+
+  const thumbnailArray = VideoInfo.videoThumbnails;
+  const thumbnailObj = thumbnailArray.find(item => item.quality === thumbQuality);
+  console.log("fn newWatch(): Available thumbnails:", thumbnailArray);
+
+  if (!thumbnailObj) throw new Error(`fn newWatch(): Thumbnail with quality ${thumbQuality} not found.`);
+  const thumbUrlPath = thumbnailObj.url;
+  const thumbUrl = new URL(thumbUrlPath, apiUrl).href;
+  console.log(`fn newWatch(): Selected thumbnail URL: ${thumbUrl}`);
+
+  let size = parseInt(VIDEO_THUMBNAIL_SIZE);
+  if (isNaN(size)) {
+    console.error("fn newWatch(): Invalid VIDEO_THUMBNAIL_SIZE in config.ts, using default size 300.");
+    size = 300;
+  }
 
   const titleThumb = expandTemplate(VIDEO_THUMBNAIL_WRITES, {
-    thumbnail,
-    thumbnail_size: VIDEO_THUMBNAIL_SIZE,
+    thumbnail: thumbUrl,
+    thumbnail_size: size.toString(),
   });
 
   if (!WATCHLIST_ENABLE) {
@@ -119,7 +132,7 @@ export async function addToWatchlist() {
   const page_exists = await space.pageExists(WATCHLIST_PATH);
   if (!page_exists) {
     console.log(`fn newWatch(): Watchlist page does not exist in ${WATCHLIST_PATH}, creating...`);
-    const meta = await space.writePage(WATCHLIST_PATH, `\n${titleText}${titleThumb}`);
+    const meta = await space.writePage(WATCHLIST_PATH, `${titleText}${titleThumb}`);
     console.log("fn newWatch(): Wrote page metadata:", meta);
     await editor.flashNotification(`🎬 ${author} - ${title} added with sucess!`);
     return;
@@ -128,13 +141,15 @@ export async function addToWatchlist() {
   // Append to existing watchlist page
   console.log(`fn newWatch(): Watchlist page exists in ${WATCHLIST_PATH}, reading...`);
   const page_content = await space.readPage(WATCHLIST_PATH);
-  const meta = await space.writePage(WATCHLIST_PATH, `${page_content}\n${titleText}${titleThumb}`).then(() => {
-    console.log("fn newWatch(): Wrote page metadata:", meta);
+  const meta = await space.writePage(WATCHLIST_PATH, `${page_content}\n${titleText}${titleThumb}`)
+  if (meta.created) {
+    console.log(`fn newWatch(): Watchlist page created in ${WATCHLIST_PATH}.`);
     editor.flashNotification(`🎬 ${author} - ${title} added with sucess!`);
-  }).catch((error) => {
-      console.error("fn newWatch(): Error writing to watchlist.", error);
-      editor.flashNotification(`Failed to add ${author} - ${title} to watchlist.`);
-  })
+  }
+  else {
+    console.log(`fn newWatch(): Some error creating watchlist page in ${WATCHLIST_PATH}.`);
+    editor.flashNotification(`new Failed to add ${author} - ${title} to watchlist.`);
+  }
 }
  
 
