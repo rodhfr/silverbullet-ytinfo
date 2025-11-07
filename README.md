@@ -11,7 +11,7 @@ Add `"ghr:rodhfr/silverbullet-ytinfo/ytinfo.plug.js"` to your plugin list in CON
 ```lua 
 config.set {
   plugs = {
-    "ghr:rodhfr/silverbullet-ytinfo/ytinfo.plug.js"
+    "github:rodhfr/silverbullet-ytinfo/ytinfo.plug.js"
   }
 }
 ```
