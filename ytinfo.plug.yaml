@@ -1,5 +1,5 @@
 name: ytinfo
-version: 0.10
+version: 0.11
 requiredPermissions:
   - fetch
 functions:
@@ -7,3 +7,7 @@ functions:
     path: ytinfo.ts:newWatch
     command:
       name: "Youtube: New Watch"
+  DeleteWatch:
+    path: ytinfo.ts:deleteWatch
+    command:
+      name: "Youtube: Delete All Watchlist"

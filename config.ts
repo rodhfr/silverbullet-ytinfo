@@ -4,7 +4,11 @@
 // Invidious API URL to fetch video information.
 // You can change to your preferences or leave it default.
 // Default: "https://inv.perditum.com/api/v1/videos/"
+// List of public instances: https://api.invidious.io/
 export const INVIDIOUS_API_URL = "https://inv.perditum.com/api/v1/videos/"; 
+
+export const WATCHLIST_ENABLE = true;
+export const WATCHLIST_PATH = "WATCHLIST";
 
 // Enable/Disable writing thumbnail.
 // Available: true, false. 
@@ -27,7 +31,7 @@ export const VIDEO_THUMBNAIL_QUALITY = "default"
 // It applies only if title + author length is between 48 and 84 or 112 and 150 characters. This includes VIDEO_TITLE_CHAR_SEPARATOR.
 // There's a table issue in silverbullet where images appear weirdly in the object query if the text length is within that range.
 // Default: true
-export const VIDEO_TITLE_TRUNCATION_FIX = true; 
+// export const VIDEO_TITLE_TRUNCATION_FIX = false; 
 
 // Number of characters before forcing truncation also known as title elipsis "...".
 // Set to 0 to disable automatic truncation.
@@ -45,7 +49,9 @@ export const VIDEO_TITLE_ELIPSIS_LIMIT = "44";
 
 // char separator can be anything you like, e.g. " - ", " | ", ": ", " ~ ", etc.
 export const VIDEO_TITLE_CHAR_SEPARATOR = " - "; 
+export const VIDEO_TITLE_TAG = "#watch";
 // available variables: ${title}, ${url}, ${author}, ${description}
-export const VIDEO_TITLE_WRITES = "- [ ] [${author}${char_separator}${title}](${url}) #watch"; 
+export const VIDEO_TITLE_WRITES = "- [ ] [${author}${char_separator}${title}](${url}) ${tag}"; 
 // available variables: ${thumbnail}, ${thumbnail_size}.
-export const VIDEO_THUMBNAIL_WRITES = "![thumbnail|${thumbnail_size}](${thumbnail})\n"; 
+// \n is used to create new lines.
+export const VIDEO_THUMBNAIL_WRITES = "\n![thumbnail|${thumbnail_size}](${thumbnail})\n"; 
